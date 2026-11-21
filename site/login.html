@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark" data-mode="static" data-build="b5c8f2ca0cb2">
+<html lang="en" data-theme="dark" data-mode="static" data-build="76261f86cd77">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,16 +27,16 @@
   <link rel="apple-touch-icon" href="app/img/icon-180.png">
   <meta name="apple-mobile-web-app-title" content="Xenon">
   <meta name="theme-color" content="#131416">
-  <link rel="stylesheet" href="app/css/app.css?v=b5c8f2ca0cb2">
-  <link rel="stylesheet" href="app/css/login.css?v=b5c8f2ca0cb2">
-  <link rel="stylesheet" href="app/css/theme.css?v=b5c8f2ca0cb2">
-  <link rel="stylesheet" href="app/css/polish.css?v=b5c8f2ca0cb2">
-  <link rel="stylesheet" href="app/css/xenon.css?v=b5c8f2ca0cb2">
-  <script src="app/js/theme.js?v=b5c8f2ca0cb2"></script>
+  <link rel="stylesheet" href="app/css/app.css?v=76261f86cd77">
+  <link rel="stylesheet" href="app/css/login.css?v=76261f86cd77">
+  <link rel="stylesheet" href="app/css/theme.css?v=76261f86cd77">
+  <link rel="stylesheet" href="app/css/polish.css?v=76261f86cd77">
+  <link rel="stylesheet" href="app/css/xenon.css?v=76261f86cd77">
+  <script src="app/js/theme.js?v=76261f86cd77"></script>
 </head>
 <body class="login-page">
   <div class="signin">
-    <section class="signin-about">
+    <header class="signin-intro">
       <div class="login-brand">
         <div class="brand-tile">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.9 3.75h3.38l4.5 8.25-4.5 8.25H2.9L7.4 12z"/><path d="M21.1 3.75h-3.38L13.22 12l4.5 8.25h3.38L16.6 12z"/><path class="arc" d="M12 8.2q.2 3.5 1.25 3.8q-1.05.3-1.25 3.8q-.2-3.5-1.25-3.8q1.05-.3 1.25-3.8z"/></svg>
@@ -44,38 +44,19 @@
         <div class="brand-name">Xenon</div>
       </div>
       <h1 class="signin-title">Learn to program by writing real code.</h1>
-      <p class="signin-lede">You read a short lesson, then write code that is really compiled and tested. Every milestone ends with a project. <span id="pitch-sync">Your progress follows your account to every device.</span></p>
-      <figure class="signin-demo">
-        <div class="demo-frame">
-          <video id="demo" muted loop playsinline preload="metadata" poster="app/media/xenon-demo.jpg" aria-label="A 30-second look at Xenon: a Python lesson whose example is run, then a practice task written and checked against its tests">
-            <source src="app/media/xenon-demo.webm" type="video/webm">
-            <source src="app/media/xenon-demo.mp4" type="video/mp4">
-          </video>
-          <button type="button" class="demo-toggle" id="demo-toggle" aria-label="Pause the video"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M8 5v14M16 5v14"/><path class="i-play" d="M7 4.5v15l12-7.5z"/></svg></button>
-        </div>
-        <figcaption>30 seconds, no sound: a lesson, an example run, and a practice task checked against its tests.</figcaption>
-      </figure>
-      <dl class="signin-facts">
-        <dt>languages</dt>
-        <dd>C++, C, C#, Java, Python, JavaScript and TypeScript, Rust, Lua, x86-64 assembly</dd>
-        <dt>also</dt>
-        <dd>How computers work, data structures and algorithms, game development, raylib, the Win32 API, Dear ImGui, DLLs, Windows kernel drivers</dd>
-        <dt>in the box</dt>
-        <dd>A code editor with completion and live error checking, a terminal, a Playground for your own projects, review cards, notes, a leaderboard</dd>
-        <dt id="beta-label" hidden>beta</dt>
-        <dd id="beta-line" hidden></dd>
-      </dl>
-    </section>
+      <p class="signin-lede">Read a short lesson, then write code that is really compiled and checked against tests. Every milestone ends with a project. <span id="pitch-sync">Your progress follows your account to every device.</span></p>
+    </header>
     <main class="signin-form">
       <div class="saved" id="saved" hidden>
-        <div class="saved-title">Accounts on this device</div>
+        <div class="saved-title">accounts on this device</div>
         <div class="saved-list" id="saved-list"></div>
       </div>
-      <div class="signin-places" id="places" hidden>
-        <div class="places-line"><span><b id="places-left">0</b> of <span id="places-cap">0</span> beta places left</span><span id="places-taken"></span></div>
-        <div class="places-bar" aria-hidden="true"><i id="places-fill"></i></div>
-      </div>
-      <form class="card login-card" id="form" autocomplete="on" novalidate>
+      <p class="signin-places" id="places" hidden><b id="places-left">0</b> of <span id="places-cap">0</span> beta places left</p>
+      <form class="card login-card" id="form" method="post" autocomplete="on" novalidate>
+        <div class="auth-tabs" id="tabs" role="tablist" aria-label="Account" hidden>
+          <button type="button" role="tab" id="tab-register" aria-selected="false" data-mode="register">Create account</button>
+          <button type="button" role="tab" id="tab-login" aria-selected="true" data-mode="login">Sign in</button>
+        </div>
         <h2 id="heading">Sign in</h2>
         <p class="muted" id="lead">Pick up where you left off.</p>
         <div id="account-fields">
@@ -95,16 +76,38 @@
           <label for="email">Email address</label>
           <input id="email" name="email" type="email" autocomplete="email" maxlength="254" spellcheck="false">
         </div>
-        <p class="signin-note" id="note" hidden></p>
         <label class="keep" id="keep-row"><input type="checkbox" id="keep" checked> <span>Keep me signed in on this device</span></label>
         <div class="login-error" id="error" role="alert"></div>
-        <button class="btn primary block" id="submit" type="submit">Sign in</button>
-        <p class="login-switch" id="switch" hidden><span id="switch-text">New here?</span> <a href="#" id="switch-link">Create an account</a></p>
+                <button class="btn primary block" id="submit" type="submit" disabled>Sign in</button>
+        <p class="signin-note" id="note" hidden></p>
       </form>
-      <p class="login-foot"><span id="ask">No account yet? Ask the person who runs this site for one. </span><span class="mono">v1.0.0</span></p>
+      <p class="login-foot" id="ask">No account yet? Ask the person who runs this site for one.</p>
     </main>
+    <section class="signin-more">
+      <figure class="signin-demo">
+        <div class="demo-frame">
+          <video id="demo" muted loop playsinline preload="metadata" poster="app/media/xenon-demo.jpg" aria-label="A short look at Xenon: a lesson example is run, then a practice task is written and checked against its tests until it passes">
+            <source src="app/media/xenon-demo.webm" type="video/webm">
+            <source src="app/media/xenon-demo.mp4" type="video/mp4">
+          </video>
+          <button type="button" class="demo-toggle" id="demo-toggle" aria-label="Pause the video"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M8 5v14M16 5v14"/><path class="i-play" d="M7 4.5v15l12-7.5z"/></svg></button>
+        </div>
+        <figcaption>No sound. A lesson example runs, then a task is written and checked against its tests.</figcaption>
+      </figure>
+      <dl class="signin-facts">
+        <dt>languages</dt>
+        <dd>C++, C, C#, Java, Python, JavaScript and TypeScript, Rust, Lua, x86-64 assembly</dd>
+        <dt>also</dt>
+        <dd>How computers work, data structures and algorithms, game development, raylib, the Win32 API, Dear ImGui, DLLs, Windows kernel drivers</dd>
+        <dt>in the box</dt>
+        <dd>A code editor with completion and live error checking, a terminal, a Playground for your own projects, review cards, notes, a leaderboard</dd>
+        <dt id="beta-label" hidden>beta</dt>
+        <dd id="beta-line" hidden></dd>
+      </dl>
+    </section>
+    <footer class="signin-foot"><span class="mono">xenon v1.0.0</span></footer>
   </div>
-  <script src="app/js/visit.js?v=b5c8f2ca0cb2" data-page="/"></script>
-  <script type="module" src="app/js/login.js?v=b5c8f2ca0cb2"></script>
+  <script src="app/js/visit.js?v=76261f86cd77" data-page="/"></script>
+  <script type="module" src="app/js/login.js?v=76261f86cd77"></script>
 </body>
 </html>
