@@ -1,0 +1,1 @@
+export{t as playOpening}from"./opening-BbKe2eJ9.js";
