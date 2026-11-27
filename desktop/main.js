@@ -43,6 +43,10 @@ const LOCAL_PAGES = ['offline.html', 'find.html'].map(name => pathToFileURL(path
 const isLocal = url => LOCAL_PAGES.some(page => String(url).split(/[?#]/)[0] === page);
 const inSite = url => { try { return new URL(url).origin === ORIGIN; } catch { return false; } };
 const outside = url => { if (/^https?:/.test(url)) shell.openExternal(url); };
+// Signing in with Discord or GitHub passes through these sites and comes back to Xenon, so they stay in the window
+// (in the normal browser the sign-in would end up there, not in the app).
+const SIGN_IN_HOSTS = [/^(.+.)?discord.com$/, /^github.com$/, /^(.+.)?supabase.co$/];
+const signingIn = url => { try { const u = new URL(url); return u.protocol === 'https:' && SIGN_IN_HOSTS.some(re => re.test(u.hostname)); } catch { return false; } };
 
 app.setName('Xenon');
 // The app was called Cairn until version 2.2. Someone who had that one keeps their sign-in and saved copy of the
@@ -168,7 +172,7 @@ function createWindow({ route = '', url = '' } = {}) {
     else web.loadURL(target);
     return { action: 'deny' };
   });
-  web.on('will-navigate', (event, target) => { if (!inSite(target) && !isLocal(target)) { event.preventDefault(); outside(target); } });
+  web.on('will-navigate', (event, target) => { if (!inSite(target) && !isLocal(target) && !signingIn(target)) { event.preventDefault(); outside(target); } });
 
   // No connection and nothing kept on this computer, or the site is down: say so, and offer to try again.
   web.on('did-fail-load', (event, code, description, target, isMainFrame) => { if (isMainFrame && code !== -3 && !String(target).startsWith('file:')) showOffline(win); });
