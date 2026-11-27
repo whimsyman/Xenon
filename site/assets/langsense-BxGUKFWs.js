@@ -1,0 +1,1 @@
+export{t as STARTERS,n as langOutline,r as registerLanguages}from"./langsense-DLXpt7P1.js";
