@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Arc, the Xenon Discord bot: the spark from the Xenon mark, struck in the middle of an electric arc.
+       Made to be cropped to a circle (Discord shows avatars round): everything that matters sits inside r=470. -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="70%">
+      <stop offset="0" stop-color="#1a2f5c"/>
+      <stop offset=".55" stop-color="#0b1430"/>
+      <stop offset="1" stop-color="#05070f"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#8fc3ff" stop-opacity=".85"/>
+      <stop offset=".35" stop-color="#4a86ff" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#2b5bd8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".5" stop-color="#dcecff"/>
+      <stop offset="1" stop-color="#9cc7ff"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7fd4ff"/>
+      <stop offset=".5" stop-color="#6b9ef7"/>
+      <stop offset="1" stop-color="#a77bff"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- A faint grid of stars, so the dark is not flat. -->
+  <g fill="#cfe2ff" opacity=".55">
+    <circle cx="210" cy="250" r="3"/><circle cx="790" cy="215" r="2.5"/><circle cx="830" cy="700" r="3"/><circle cx="240" cy="760" r="2.5"/>
+    <circle cx="160" cy="520" r="2"/><circle cx="880" cy="470" r="2"/><circle cx="520" cy="130" r="2"/><circle cx="560" cy="900" r="2"/>
+  </g>
+
+  <!-- The light behind the spark. -->
+  <circle cx="512" cy="512" r="330" fill="url(#halo)"/>
+
+  <!-- The electric arc: two jagged bolts circling the spark, open at the top-right and bottom-left. -->
+  <g fill="none" stroke="url(#ring)" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <path stroke-width="18" d="M 720 268 L 690 300 L 742 330 L 742 380 L 790 410 L 770 470 L 808 512 L 774 560 L 790 620 L 740 650 L 735 708 L 680 724 L 650 772 L 590 768 L 548 806"/>
+    <path stroke-width="18" d="M 304 756 L 334 724 L 282 694 L 282 644 L 234 614 L 254 554 L 216 512 L 250 464 L 234 404 L 284 374 L 289 316 L 344 300 L 374 252 L 434 256 L 476 218"/>
+  </g>
+  <!-- Thin bright cores on the bolts. -->
+  <g fill="none" stroke="#f2f8ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+    <path d="M 720 268 L 690 300 L 742 330 L 742 380 L 790 410 L 770 470 L 808 512 L 774 560 L 790 620 L 740 650 L 735 708 L 680 724 L 650 772 L 590 768 L 548 806"/>
+    <path d="M 304 756 L 334 724 L 282 694 L 282 644 L 234 614 L 254 554 L 216 512 L 250 464 L 234 404 L 284 374 L 289 316 L 344 300 L 374 252 L 434 256 L 476 218"/>
+  </g>
+  <!-- Sparks where the bolts end. -->
+  <g fill="#ffffff" filter="url(#glow)">
+    <circle cx="720" cy="268" r="11"/><circle cx="548" cy="806" r="11"/><circle cx="304" cy="756" r="11"/><circle cx="476" cy="218" r="11"/>
+  </g>
+
+  <!-- The spark itself: the Xenon mark's four-pointed star, large. -->
+  <g filter="url(#glow)">
+    <path fill="url(#spark)" d="M512 250 Q526 470 600 512 Q526 554 512 774 Q498 554 424 512 Q498 470 512 250 Z"/>
+  </g>
+  <path fill="#ffffff" opacity=".85" filter="url(#soft)" d="M512 380 Q518 486 548 512 Q518 538 512 644 Q506 538 476 512 Q506 486 512 380 Z"/>
+</svg>

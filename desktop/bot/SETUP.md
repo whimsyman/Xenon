@@ -7,10 +7,11 @@ the **Bot** page of the site (your account menu, or Admin > Open bot panel). Onl
 
 1. Go to https://discord.com/developers/applications and press **New Application**. Name it `Arc`, accept, **Create**.
    (A separate app from the "Xenon" one used for "Continue with Discord" keeps the two apart.)
-2. **General Information**: give it an icon (for example `D:\XenonSoruce\xenon-icon-512.png`) and a short description,
-   such as "The Xenon community bot".
+2. **General Information**: give it Arc's picture (`D:\XenonSoruce\arc-avatar.png`) and a short description, such as
+   "The Xenon community bot". (Once Arc is connected, the panel's **Give Arc its name and picture** button sets the
+   bot's own name and picture too.)
 3. **Bot** in the left menu:
-   - Set the **Username** to `Arc` and the same icon.
+   - Set the **Username** to `Arc` and the same picture (or let the panel's button do it).
    - Under **Privileged Gateway Intents**, switch on **Server Members Intent** (lets Arc list and manage members).
      Presence and Message Content are not needed.
    - Switch **Public Bot** off, so only you can add Arc to servers.

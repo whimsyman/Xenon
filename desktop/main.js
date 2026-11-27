@@ -577,7 +577,7 @@ function arcBot() {
   return arc;
 }
 const ARC_CALLS = ['status', 'connect', 'disconnect', 'forget', 'select', 'structure', 'createChannel', 'editChannel', 'deleteChannel',
-  'createRole', 'editRole', 'deleteRole', 'members', 'memberRoles', 'memberAction', 'nuke', 'setup', 'rebuild', 'announce'];
+  'createRole', 'editRole', 'deleteRole', 'members', 'memberRoles', 'memberAction', 'nuke', 'setup', 'rebuild', 'announce', 'brand'];
 ipcMain.handle('xenon:arc', async (event, name, args) => {
   if (!fromSite(event)) return { error: 'Not allowed.' };
   if (!ARC_CALLS.includes(name)) return { error: 'Unknown request.' };

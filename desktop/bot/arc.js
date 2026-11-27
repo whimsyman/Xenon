@@ -487,6 +487,21 @@ class Arc {
     return { ok: true };
   }
 
+/** Gives the bot its name and its picture (desktop/bot/arc-avatar.png). Discord allows a new name twice an hour. */
+  async brand() {
+    if (!this.client || !this.ready) throw new Error('Connect Arc first.');
+    const done = [];
+    const picture = path.join(__dirname, 'arc-avatar.png');
+    if (fs.existsSync(picture)) { await this.client.user.setAvatar(picture); done.push('picture'); }
+    if (this.client.user.username !== 'Arc') {
+      try { await this.client.user.setUsername('Arc'); done.push('name'); }
+      catch (err) { this.log(`The name was not changed: ${err.message} (Discord allows two changes an hour; or set it on the Bot page of the Developer Portal).`, 'error'); }
+    }
+    this.log(`🎨 Gave Arc its ${done.join(' and ') || 'look'}.`);
+    this.emit({ type: 'status' });
+    return this.status();
+  }
+
   /* ---------- announcements ---------- */
 
   /** Posts one of the site's announcements in the server's announcements channel; returns the message's id. */
