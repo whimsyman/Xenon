@@ -1,7 +1,7 @@
 {
   "name": "xenon-desktop",
   "productName": "Xenon",
-  "version": "2.5.4",
+  "version": "2.6.0",
   "description": "Xenon for the desktop: the Xenon website in windows of its own, with the same accounts and progress, and it opens without a connection.",
   "homepage": "https://xenon.justloofy.dev",
   "author": {
@@ -34,7 +34,8 @@
       "offline.html",
       "preload.js",
       "runner.js",
-      "updater.js"
+      "updater.js",
+      "bot/**"
     ],
     "directories": {
       "output": "dist",
@@ -117,6 +118,7 @@
     ]
   },
   "dependencies": {
+    "discord.js": "^14.28.1",
     "electron-updater": "^6.8.11"
   }
 }

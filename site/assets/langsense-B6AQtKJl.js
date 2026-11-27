@@ -1,1 +1,0 @@
-export{t as STARTERS,n as langOutline,r as registerLanguages}from"./langsense-OLnp6873.js";

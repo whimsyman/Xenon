@@ -37,6 +37,8 @@ if (info) {
     local: ask => ipcRenderer.invoke('xenon:local', ask && typeof ask === 'object' ? { on: typeof ask.on === 'boolean' ? ask.on : undefined, rescan: !!ask.rescan } : null),
     /** Builds and runs one program on this computer. Refused unless the switch above is on. */
     run: job => ipcRenderer.invoke('xenon:run', job),
+    /** Arc, the Discord bot this app can run (the site's Bot panel, for the owner). Each call answers { ok, result } or { error }. */
+    arc: (name, args) => ipcRenderer.invoke('xenon:arc', String(name), args && typeof args === 'object' ? JSON.parse(JSON.stringify(args)) : null),
     files: {
       /** Files dropped on the page. The app reads them itself; the page gets each one's name, text and an id to save back with. */
       dropped: list => {

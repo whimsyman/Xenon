@@ -19,7 +19,7 @@
 // come from the top frame of a window this app made, showing the site or one of the app's own pages.
 //
 //   XENON_URL=http://localhost:4175 npm start      points the windows at another copy of the site (for testing)
-const { app, BrowserWindow, WebContentsView, Menu, shell, nativeTheme, ipcMain, dialog, globalShortcut } = require('electron');
+const { app, BrowserWindow, WebContentsView, Menu, shell, nativeTheme, ipcMain, dialog, globalShortcut, safeStorage } = require('electron');
 const updater = require('./updater');
 const runner = require('./runner');
 const crypto = require('crypto');
@@ -556,6 +556,45 @@ async function openFromOutside(win, paths) {
   if (!win || win.isDestroyed() || !paths.length) return;
   tell(win, 'files', await openPaths(paths));
 }
+
+/* ---------- Arc, the Xenon Discord bot (desktop/bot/arc.js) ----------
+   It runs here, in the app, only while the app is open, and only does what the Bot panel on the site asks (the site
+   shows that panel to the owner only). Its token is kept encrypted with the computer's own key store. */
+let arc = null;
+function arcBot() {
+  if (!arc) {
+    const { Arc } = require('./bot/arc');
+    arc = new Arc({
+      dir: app.getPath('userData'),
+      secrets: {
+        available: () => safeStorage.isEncryptionAvailable(),
+        encrypt: text => safeStorage.encryptString(text).toString('base64'),
+        decrypt: text => safeStorage.decryptString(Buffer.from(text, 'base64')),
+      },
+      emit: event => { for (const win of BrowserWindow.getAllWindows()) tell(win, 'arc', event); },
+    });
+  }
+  return arc;
+}
+const ARC_CALLS = ['status', 'connect', 'disconnect', 'forget', 'select', 'structure', 'createChannel', 'editChannel', 'deleteChannel',
+  'createRole', 'editRole', 'deleteRole', 'members', 'memberRoles', 'memberAction', 'nuke', 'setup', 'rebuild', 'announce'];
+ipcMain.handle('xenon:arc', async (event, name, args) => {
+  if (!fromSite(event)) return { error: 'Not allowed.' };
+  if (!ARC_CALLS.includes(name)) return { error: 'Unknown request.' };
+  try {
+    const bot = arcBot();
+    const a = args && typeof args === 'object' ? args : {};
+    const result = name === 'connect' ? await bot.connect(typeof a.token === 'string' ? a.token : '')
+      : name === 'select' ? bot.select(String(a.guildId || ''))
+      : name === 'nuke' || name === 'rebuild' ? await bot[name](String(a.guildId || ''), String(a.confirm || ''))
+      : name === 'setup' ? await bot.setup(String(a.guildId || ''))
+      : await bot[name](a);
+    return { ok: true, result: result === undefined ? null : result };
+  } catch (err) {
+    return { error: (err && err.message) || String(err) };
+  }
+});
+app.on('before-quit', () => { if (arc) arc.disconnect(); });
 
 ipcMain.handle('xenon:files-open', async (event, paths) => (fromSite(event) ? openPaths(paths) : { files: [], problems: [] }));
 ipcMain.handle('xenon:file-read', async (event, id) => (fromSite(event) ? readGranted(String(id)) : { error: 'Not allowed.' }));
