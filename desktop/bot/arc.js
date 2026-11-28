@@ -63,25 +63,33 @@ class Arc {
     await this.disconnect();
     const { Client, GatewayIntentBits, Partials } = lib();
     const plain = this.secrets.decrypt(this.config.token);
-    const make = members => new Client({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildModeration, ...(members ? [GatewayIntentBits.GuildMembers] : [])],
-      partials: [Partials.GuildMember],
+    const I = GatewayIntentBits;
+    const make = (members, content) => new Client({
+      intents: [I.Guilds, I.GuildModeration, I.GuildMessages, I.GuildMessageReactions, I.GuildVoiceStates, I.GuildExpressions,
+        I.GuildScheduledEvents, I.GuildInvites, I.AutoModerationConfiguration, I.AutoModerationExecution,
+        ...(members ? [I.GuildMembers] : []), ...(content ? [I.MessageContent] : [])],
+      partials: [Partials.GuildMember, Partials.Message, Partials.Channel],
     });
-    // The member list needs the "Server Members Intent" switched on for the bot; without it Arc still works.
-    for (const members of [true, false]) {
-      const client = make(members);
+    // Two parts of Discord need switching on for the bot in the Developer Portal: the member list ("Server Members
+    // Intent") and other people's message text ("Message Content Intent"). Arc asks for both, and works without them.
+    const tries = [[true, true], [true, false], [false, true], [false, false]];
+    for (const [k, [members, content]] of tries.entries()) {
+      const client = make(members, content);
       try {
         await new Promise((resolve, reject) => { client.once('clientReady', resolve); client.login(plain).catch(reject); });
-        this.client = client; this.membersIntent = members; break;
+        this.client = client; this.membersIntent = members; this.contentIntent = content; break;
       } catch (err) {
         client.destroy();
-        if (members && /disallowed intents/i.test(err.message || '')) continue;
+        if (k < tries.length - 1 && /disallowed intents/i.test(err.message || '')) continue;
         if (/invalid token|TokenInvalid/i.test(`${err.code} ${err.message}`)) throw new Error('Discord did not accept that token. Reset it on the Bot page of your app and paste the new one.');
         throw err;
       }
     }
     this.ready = true;
     this.wire();
+    this.applyPresence();
+    for (const g of this.client.guilds.cache.values()) if (((this.config.auto || {})[g.id]?.commands || []).length) await this.registerGuildCommands(g.id).catch(() => {});
+    this.timer = setInterval(() => this.tick().catch(() => {}), 30000);
     await this.registerCommands().catch(err => this.log(`Slash commands not registered: ${err.message}`, 'error'));
     this.log(`Connected as ${this.client.user.tag}.`);
     this.emit({ type: 'status' });
@@ -89,6 +97,7 @@ class Arc {
   }
 
   async disconnect() {
+    clearInterval(this.timer); this.timer = null;
     if (this.client) { try { await this.client.destroy(); } catch { /* gone */ } }
     this.client = null; this.ready = false;
     this.emit({ type: 'status' });
@@ -104,7 +113,7 @@ class Arc {
   status() {
     const c = this.client;
     return {
-      hasToken: this.hasToken(), connected: !!(c && this.ready), busy: this.busy, membersIntent: this.membersIntent,
+      hasToken: this.hasToken(), connected: !!(c && this.ready), busy: this.busy, membersIntent: this.membersIntent, contentIntent: !!this.contentIntent,
       user: c && c.user ? { id: c.user.id, tag: c.user.tag, avatar: c.user.displayAvatarURL({ size: 64 }) } : null,
       guilds: c ? [...c.guilds.cache.values()].map(g => ({ id: g.id, name: g.name, icon: g.iconURL({ size: 64 }), members: g.memberCount, community: g.features.includes('COMMUNITY') })) : [],
       guildId: this.config.guildId || '', invite: this.inviteUrl(), log: this.lines.slice(-80),
@@ -137,9 +146,11 @@ class Arc {
     const c = this.client;
     c.on('guildCreate', () => this.emit({ type: 'status' }));
     c.on('guildDelete', () => this.emit({ type: 'status' }));
-    c.on('guildMemberAdd', m => this.modlog(m.guild, `📥 ${m.user.tag} joined (${m.guild.memberCount} members).`));
-    c.on('guildMemberRemove', m => this.modlog(m.guild, `📤 ${m.user ? m.user.tag : 'Someone'} left.`));
-    c.on('interactionCreate', i => this.interaction(i).catch(err => {
+    c.on('guildMemberAdd', m => { this.modlog(m.guild, `📥 ${m.user.tag} joined (${m.guild.memberCount} members).`); this.onJoin(m).catch(() => {}); this.emit({ type: 'members' }); });
+    c.on('guildMemberRemove', m => { this.modlog(m.guild, `📤 ${m.user ? m.user.tag : 'Someone'} left.`); this.onLeave(m).catch(() => {}); this.emit({ type: 'members' }); });
+    for (const e of ['channelCreate', 'channelDelete', 'channelUpdate', 'roleCreate', 'roleDelete', 'roleUpdate']) c.on(e, () => this.emit({ type: 'structure' }));
+    c.on('messageCreate', m => { if (m.guild && m.guild.id === this.config.guildId) this.emit({ type: 'message', channelId: m.channelId }); });
+    c.on('interactionCreate', i => this.onAutomation(i).then(done => (done ? null : this.interaction(i))).catch(err => {
       const reply = { content: `Something went wrong: ${err.message}`, ephemeral: true };
       (i.replied || i.deferred ? i.followUp(reply) : i.reply(reply)).catch(() => {});
     }));
@@ -533,3 +544,17 @@ function channelName(name, emoji, text, category) {
 }
 
 module.exports = { Arc, channelName };
+
+// The tools (desktop/bot/tools.js), the automations (automations.js) and the console (console.js) are part of Arc.
+const { tools } = require('./tools');
+const { automations } = require('./automations');
+const { consoleCommands } = require('./console');
+Object.assign(Arc.prototype, tools, automations, consoleCommands);
+
+/** Everything the Bot panel may ask Arc to do (desktop/main.js lets through only these). */
+const PANEL_CALLS = ['status', 'connect', 'disconnect', 'forget', 'select', 'structure', 'createChannel', 'editChannel', 'deleteChannel',
+  'createRole', 'editRole', 'deleteRole', 'members', 'memberRoles', 'memberAction', 'nuke', 'setup', 'rebuild', 'announce', 'brand',
+  ...Object.keys(tools).filter(k => k !== 'channelOf'),
+  ...['automations', 'setWelcome', 'testWelcome', 'setAutoroles', 'createRolePicker', 'deleteRolePicker', 'setCommands', 'scheduleMessage', 'cancelScheduled', 'setPresence'],
+  'runCommand'];
+module.exports.PANEL_CALLS = PANEL_CALLS;

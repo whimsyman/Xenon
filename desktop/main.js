@@ -576,13 +576,14 @@ function arcBot() {
   }
   return arc;
 }
-const ARC_CALLS = ['status', 'connect', 'disconnect', 'forget', 'select', 'structure', 'createChannel', 'editChannel', 'deleteChannel',
-  'createRole', 'editRole', 'deleteRole', 'members', 'memberRoles', 'memberAction', 'nuke', 'setup', 'rebuild', 'announce', 'brand'];
+// What the panel may ask for: Arc's own list (desktop/bot/arc.js PANEL_CALLS), read when Arc is first needed.
+let ARC_CALLS = null;
 ipcMain.handle('xenon:arc', async (event, name, args) => {
   if (!fromSite(event)) return { error: 'Not allowed.' };
-  if (!ARC_CALLS.includes(name)) return { error: 'Unknown request.' };
   try {
     const bot = arcBot();
+    ARC_CALLS ||= require('./bot/arc').PANEL_CALLS;
+    if (!ARC_CALLS.includes(name)) return { error: 'Unknown request.' };
     const a = args && typeof args === 'object' ? args : {};
     const result = name === 'connect' ? await bot.connect(typeof a.token === 'string' ? a.token : '')
       : name === 'select' ? bot.select(String(a.guildId || ''))
