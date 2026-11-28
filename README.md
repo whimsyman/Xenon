@@ -45,6 +45,17 @@ computer:
 | macOS | `Xenon-…-mac-universal.zip` | One file for every Mac. Double-click it and keep `Xenon.app` anywhere, such as the Desktop. The first time, open Terminal and run `xattr -dr com.apple.quarantine ~/Desktop/Xenon.app` (change the path if you put it somewhere else); after that it opens with a double-click. The `.dmg` is the same app for dragging into Applications. |
 | Linux | `Xenon-…-x86_64.AppImage` | Mark it executable and run it. The `.deb` installs on Debian and Ubuntu. |
 
+**On Omarchy** (or any other x86-64 Linux desktop), one line installs it for you and adds it to the app launcher:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/whimsyman/Xenon/main/install-omarchy.sh | bash
+```
+
+It downloads the newest AppImage from the releases page, checks it against the release's checksum, keeps it in
+`~/.local/share/xenon` and adds Xenon to the launcher. It needs no administrator password, and the app goes on
+updating itself. Run the same line again to reinstall; add `-s -- --uninstall` after `bash` to remove it.
+[Read the script](install-omarchy.sh) before running it if you like.
+
 The Windows app is the one used every day. The macOS and Linux apps are built and checked automatically but
 have had far less use, so say so with "Send a suggestion" if one misbehaves.
 

@@ -71,7 +71,9 @@ class Arc {
     if (token) {
       token = String(token).trim();
       if (!/^[\w-]{20,}\.[\w-]{4,}\.[\w-]{20,}$/.test(token)) throw new Error('That does not look like a bot token. Copy it again from the Bot page of your app on the Discord Developer Portal.');
-      if (!this.secrets.available()) throw new Error('This computer cannot keep the token encrypted, so it was not saved.');
+      if (!this.secrets.available()) throw new Error(process.platform === 'linux'
+        ? 'This computer cannot keep the token encrypted, so it was not saved. Start a key store (GNOME Keyring, or KWallet on KDE) and open the app again.'
+        : 'This computer cannot keep the token encrypted, so it was not saved.');
       this.config.token = this.secrets.encrypt(token); this.save();
     }
     if (!this.config.token) throw new Error('Paste the bot token first.');

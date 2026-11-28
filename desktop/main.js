@@ -56,6 +56,16 @@ try {
   if (!app.commandLine.hasSwitch('user-data-dir') && fs.existsSync(before)) app.setPath('userData', before);
 } catch { /* a fresh folder is fine */ }
 if (process.platform === 'win32') app.setAppUserModelId(APP_ID);
+// Linux: the computer's key store (used to keep Arc's token encrypted) is found by the name of the desktop. Chromium
+// knows GNOME, KDE and a few others; on any other (Hyprland, Sway, Omarchy...) it uses no key store at all, and
+// safeStorage says encryption is unavailable even with GNOME Keyring running. There, ask for the Secret Service
+// (GNOME Keyring, KeePassXC...). With none running, encryption simply stays unavailable, as before. Cookies saved
+// before this keep working: Chromium reads both kinds. A --password-store given on the command line wins.
+if (process.platform === 'linux' && !app.commandLine.hasSwitch('password-store')) {
+  const desktop = (process.env.XDG_CURRENT_DESKTOP || '').toUpperCase();
+  const known = /GNOME|KDE|UNITY|CINNAMON|PANTHEON|XFCE|DEEPIN|UKUI|LXQT|BUDGIE/.test(desktop);
+  if (!known) app.commandLine.appendSwitch('password-store', 'gnome-libsecret');
+}
 
 /* ---------- what the app remembers on this computer ---------- */
 
