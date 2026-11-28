@@ -1,6 +1,6 @@
 # Arc, the Xenon Discord bot: setting it up
 
-Arc runs inside the Xenon desktop app (2.7.0 and later for the full console), on your computer, while the app is open. You control it from
+Arc runs inside the Xenon desktop app (2.7.1 and later for the full console), on your computer, while the app is open. You control it from
 the **Bot** page of the site (your account menu, or Admin > Open bot panel). Only the owner account sees it.
 
 ## 1. Make the bot on Discord (once)
@@ -24,7 +24,7 @@ In Discord, press **+** in the server list, **Create My Own**, **For me and my f
 
 ## 3. Connect Arc
 
-1. Open the **Xenon desktop app** (update to 2.7.0 or later), sign in, open your account menu and choose **Bot**.
+1. Open the **Xenon desktop app** (update to 2.7.1 or later), sign in, open your account menu and choose **Bot**.
 2. Paste the token and press **Save and connect**. It is kept encrypted on this computer only.
 3. Press **Add Arc to a server**, pick your Xenon server, and allow **Administrator**. Back in the panel, pick the server.
 

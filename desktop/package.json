@@ -1,7 +1,7 @@
 {
   "name": "xenon-desktop",
   "productName": "Xenon",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "Xenon for the desktop: the Xenon website in windows of its own, with the same accounts and progress, and it opens without a connection.",
   "homepage": "https://xenon.justloofy.dev",
   "author": {

@@ -126,9 +126,11 @@ class Arc {
     return this.status();
   }
 
+  /** The server to work on: an id, or the panel's arguments ({ guildId }), or else the one picked in the panel. */
   guild(id) {
     if (!this.client || !this.ready) throw new Error('Connect Arc first.');
-    const g = this.client.guilds.cache.get(id || this.config.guildId);
+    const want = typeof id === 'string' ? id : id && typeof id === 'object' && typeof id.guildId === 'string' ? id.guildId : '';
+    const g = this.client.guilds.cache.get(want || this.config.guildId);
     if (!g) throw new Error('Pick the server Arc should manage.');
     return g;
   }
