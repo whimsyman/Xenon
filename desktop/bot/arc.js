@@ -50,6 +50,21 @@ class Arc {
     if (this.logChannel) this.logChannel.send({ content: `${level === 'error' ? '⚠️ ' : ''}${line.text}`.slice(0, 1900), allowedMentions: { parse: [] } }).catch(() => {});
   }
 
+  /**
+   * A panel request that failed: writes it in the console (with the Discord address it failed on, ids left out) and
+   * returns the words for the panel. Discord's own "404: Not Found" means the address itself does not exist.
+   */
+  failed(name, err) {
+    const raw = (err && err.message) || String(err);
+    const route = err && err.url ? ` (${err.method || ''} ${String(err.url).replace(/^https?:\/\/[^/]+\/api\/v\d+/, '').replace(/\d{15,}/g, ':id')})` : '';
+    const words = /^404: Not Found$/.test(raw) ? 'Discord could not find that. It may have been deleted, or Arc asked for it the wrong way.'
+      : /Missing Permissions/i.test(raw) ? 'Arc is not allowed to do that here. Check that its role is above the roles and channels it changes.'
+      : /Missing Access/i.test(raw) ? 'Arc cannot see that channel.'
+      : raw;
+    if (!/^(Connect Arc first|Pick the server)/.test(raw)) this.log(`⚠️ ${name} failed: ${raw}${route}`, 'error');
+    return words;
+  }
+
   /* ---------- connecting ---------- */
 
   async connect(token) {
@@ -392,6 +407,13 @@ class Arc {
       loose: all.filter(c => c.type !== ChannelType.GuildCategory && !c.parentId).map(view),
       roles: [...g.roles.cache.values()].filter(r => r.id !== g.id).sort((a, b) => b.position - a.position)
         .map(r => ({ id: r.id, name: r.name, color: r.hexColor, hoist: r.hoist, mentionable: r.mentionable, managed: r.managed, members: r.members.size, admin: r.permissions.has('Administrator'), editable: !r.managed && r.editable && (!me || r.position < me.roles.highest.position) })),
+      // Where Arc's own (highest) role sits: Discord lets a bot give, change or delete only the roles below it, and a
+      // bot cannot move itself up. `above` counts the server's own roles (not apps') that are above or level with it.
+      arc: me ? (() => {
+        const top = me.roles.highest;
+        const above = [...g.roles.cache.values()].filter(r => r.id !== g.id && r.id !== top.id && !r.managed && r.position >= top.position);
+        return { roleId: top.id, roleName: top.name, above: above.length, aboveNames: above.sort((a, b) => b.position - a.position).slice(0, 6).map(r => r.name) };
+      })() : null,
     };
   }
 

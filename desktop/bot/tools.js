@@ -200,6 +200,8 @@ const tools = {
       content: this.contentIntent,
       messages: [...list.values()].reverse().map(m => ({
         id: m.id, author: m.member ? m.member.displayName : m.author.username, avatar: m.author.displayAvatarURL({ size: 64 }), bot: m.author.bot, mine: m.author.id === this.client.user.id,
+        // Names for the <@id> people a message mentions (channels and roles the panel already knows).
+        people: m.mentions && m.mentions.users ? Object.fromEntries([...m.mentions.users.values()].map(u => [u.id, (m.mentions.members && m.mentions.members.get(u.id)?.displayName) || u.globalName || u.username])) : {},
         at: isoOr(m.createdAt), edited: !!m.editedAt, pinned: m.pinned, content: m.content,
         embeds: m.embeds.map(e => ({ title: e.title, description: e.description, color: e.hexColor, url: e.url })),
         files: [...m.attachments.values()].map(a => ({ name: a.name, url: a.url, size: a.size, image: /^image\//.test(a.contentType || ''), description: a.description || '' })),

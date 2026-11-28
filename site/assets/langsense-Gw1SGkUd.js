@@ -1,0 +1,1 @@
+export{t as STARTERS,n as langOutline,r as registerLanguages}from"./langsense-D1a7M0xk.js";

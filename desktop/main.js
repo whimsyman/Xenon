@@ -592,6 +592,8 @@ ipcMain.handle('xenon:arc', async (event, name, args) => {
       : await bot[name](a);
     return { ok: true, result: result === undefined ? null : result };
   } catch (err) {
+    // Said in Arc's console too, with the Discord address it failed on, so a failure can be traced afterwards.
+    if (arc && typeof arc.failed === 'function') return { error: arc.failed(name, err) };
     return { error: (err && err.message) || String(err) };
   }
 });
